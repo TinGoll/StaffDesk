@@ -1,4 +1,4 @@
-#### Staff Sesk Client
+#### Staff Desk Client
 
 Для запуска:
 
