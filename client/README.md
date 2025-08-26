@@ -7,6 +7,7 @@
 2. Выполнить
 
 ```bash
+cd client
 npm i
 npm run dev
 ```
