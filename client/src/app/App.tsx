@@ -1,7 +1,8 @@
-import { BrowserRouter } from "react-router";
-import { initializeDayjsConf } from "./providers/dayjs.conf";
-import { routesElements } from "./routes/routesElements";
-import type { FC } from "react";
+import type { FC } from 'react';
+import { BrowserRouter } from 'react-router';
+
+import { initializeDayjsConf } from './providers/dayjs.conf';
+import { routesElements } from './routes/routesElements';
 
 initializeDayjsConf();
 

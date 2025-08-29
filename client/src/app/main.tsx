@@ -1,15 +1,16 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import { AntdConfigProvider } from "./providers/AntdConfigProvider.tsx";
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
 
-import "./reset.css";
-import "./index.css";
-import { App } from "./App.tsx";
+import { AntdConfigProvider } from './providers/AntdConfigProvider.tsx';
 
-createRoot(document.getElementById("root")!).render(
+import './reset.css';
+import './index.css';
+import { App } from './App.tsx';
+
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AntdConfigProvider>
       <App />
     </AntdConfigProvider>
-  </StrictMode>
+  </StrictMode>,
 );

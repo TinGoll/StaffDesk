@@ -1,5 +1,4 @@
 export const ROUTES = {
-    root: "/",
-    testID: "/test/:testID/*",
-
+  root: '/',
+  testID: '/test/:testID/*',
 };

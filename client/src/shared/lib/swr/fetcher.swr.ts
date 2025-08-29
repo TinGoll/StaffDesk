@@ -9,7 +9,7 @@ interface FetcherArgs<D = unknown> {
   url: string;
   method?: Method;
   params?: Record<string, any>;
-  data?: D; 
+  data?: D;
   config?: AxiosRequestConfig;
 }
 
