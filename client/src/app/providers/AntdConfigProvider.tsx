@@ -1,6 +1,6 @@
-import { ConfigProvider } from "antd";
-import type { FC, ReactNode } from "react";
-import ruRu from "antd/locale/ru_Ru";
+import { ConfigProvider } from 'antd';
+import ruRu from 'antd/locale/ru_Ru';
+import type { FC, ReactNode } from 'react';
 
 type Props = {
   children: ReactNode;

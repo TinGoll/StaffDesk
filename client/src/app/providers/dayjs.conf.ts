@@ -13,21 +13,21 @@ dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
 
 dayjs.updateLocale('ru', {
-    relativeTime: {
-        future: 'через %s',
-        past: '%s назад',
-        s: 'несколько сек',
-        m: '1мин',
-        mm: '%dмин',
-        h: '1ч',
-        hh: '%dч',
-        d: '1д',
-        dd: '%dд',
-        M: '1м',
-        MM: '%dм',
-        y: '1г',
-        yy: '%dг',
-    },
+  relativeTime: {
+    future: 'через %s',
+    past: '%s назад',
+    s: 'несколько сек',
+    m: '1мин',
+    mm: '%dмин',
+    h: '1ч',
+    hh: '%dч',
+    d: '1д',
+    dd: '%dд',
+    M: '1м',
+    MM: '%dм',
+    y: '1г',
+    yy: '%dг',
+  },
 });
 
 export const initializeDayjsConf = (): Dayjs => dayjs();
