@@ -8,7 +8,7 @@ const api = axios.create({
 interface FetcherArgs<D = unknown> {
   url: string;
   method?: Method;
-  params?: Record<string, any>;
+  params?: Record<string, unknown>;
   data?: D;
   config?: AxiosRequestConfig;
 }

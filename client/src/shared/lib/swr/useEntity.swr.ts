@@ -19,6 +19,7 @@ export interface UseEntityOptions<R extends BaseEntity> {
   endpoint: string;
   swrConfig?: SWRConfiguration<R[]>;
   transform?: (data: R[]) => R[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mutationConfig?: SWRMutationConfiguration<any, Error, string, any>;
   extraKeysToRevalidate?: string[];
 }
