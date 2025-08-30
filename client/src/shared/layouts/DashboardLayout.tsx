@@ -6,6 +6,12 @@ const styles = css`
   height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
+  & .app-header {
+    position: sticky;
+    top: 0;
+  }
+
   & .app-main {
     flex: 1;
   }
@@ -19,7 +25,7 @@ type Props = {
 export const DashboardLayout: FC<Props> = ({ navbar, footer }) => {
   return (
     <div className={styles}>
-      {navbar && <nav className="app-navbar">{navbar}</nav>}
+      {navbar && <header className="app-header">{navbar}</header>}
       <main className="app-main">
         <Outlet />
       </main>
