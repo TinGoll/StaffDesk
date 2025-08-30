@@ -14,6 +14,7 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
+    "jsxImportSource": "@emotion/react",
 
     /* Linting */
     "strict": true,
@@ -30,15 +31,16 @@
       "@widgets/*": ["./widgets/*"],
       "@features/*": ["./features/*"],
       "@entities/*": ["./entities/*"],
-      "@shared/*": ["./shared/*"],
+      "@shared/*": ["./shared/*"]
     }
   },
   "include": [
-    "src", 
-    "test", 
+    "src",
+    "test",
     "*.d.ts",
     "src/**/*",
     "src/**/*.ts",
     "src/**/*.tsx",
-    "src/**/*.mdx",]
+    "src/**/*.mdx"
+  ]
 }
