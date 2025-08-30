@@ -12,7 +12,8 @@ const styles = css`
   align-items: center;
   justify-content: flex-start;
   gap: 16px;
-  border-bottom: 1px solid #303030;
+  border-bottom: 1px solid var(--app-devider-color);
+  background-color: var(--app-header-background-color);
   & .ant-tabs {
     & .ant-tabs-nav {
       margin: 0;
