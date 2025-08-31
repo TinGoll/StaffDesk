@@ -1,4 +1,5 @@
-import useSWR, { mutate, type SWRConfiguration } from 'swr';
+import { useMemo } from 'react';
+import useSWR, { type SWRConfiguration } from 'swr';
 import type { SWRMutationConfiguration } from 'swr/mutation';
 import useSWRMutation from 'swr/mutation';
 
@@ -15,10 +16,18 @@ export interface MutationCallbacks<T> {
   onError?: (error: Error) => void;
 }
 
-export interface UseEntityOptions<R extends BaseEntity> {
+export interface PaginatedResponse<T> {
+  items: T[];
+  meta: Record<string, unknown>;
+}
+
+export interface UseEntityOptions<
+  R extends BaseEntity,
+  TTransformedData = PaginatedResponse<R>,
+> {
   endpoint: string;
-  swrConfig?: SWRConfiguration<R[]>;
-  transform?: (data: R[]) => R[];
+  swrConfig?: SWRConfiguration<PaginatedResponse<R>>;
+  transform: (data: PaginatedResponse<R>) => TTransformedData;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mutationConfig?: SWRMutationConfiguration<any, Error, string, any>;
   extraKeysToRevalidate?: string[];
@@ -26,6 +35,7 @@ export interface UseEntityOptions<R extends BaseEntity> {
 
 export function useEntity<
   R extends BaseEntity,
+  TTransformedData = PaginatedResponse<R>,
   C = Omit<R, 'id'>,
   U = Partial<C>,
 >({
@@ -34,17 +44,20 @@ export function useEntity<
   transform,
   mutationConfig,
   extraKeysToRevalidate = [],
-}: UseEntityOptions<R>) {
-  const { data, error, isLoading } = useSWR<R[], Error>(
-    endpoint,
-    (url: string) => fetcher({ url }),
-    swrConfig,
+}: UseEntityOptions<R, TTransformedData>) {
+  const { data, error, isLoading, mutate } = useSWR<
+    PaginatedResponse<R>,
+    Error
+  >(endpoint, (url: string) => fetcher({ url }), swrConfig);
+
+  const transformedData = useMemo(
+    () => (data ? transform(data) : undefined),
+    [data, transform],
   );
 
-  const items = data ? (transform ? transform(data) : data) : [];
-
   const revalidateExtraKeys = () => {
-    extraKeysToRevalidate.forEach((key) => mutate(key));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    extraKeysToRevalidate.forEach((key) => mutate(key as any));
   };
 
   // --- CREATE ---
@@ -68,13 +81,13 @@ export function useEntity<
    * @param options - Опциональные колбэки onSuccess и onError.
    */
   const create = async (newItem: C, options?: MutationCallbacks<R>) => {
-    // Оптимистичное обновление
+    const tempItem = { ...newItem, id: 'temp-id' } as unknown as R;
+
     await mutate(
-      endpoint,
-      (current: R[] = []) => [
-        { ...newItem, id: 'temp-id' } as unknown as R,
-        ...current,
-      ],
+      (current) => ({
+        items: [tempItem, ...(current?.items ?? [])],
+        meta: current?.meta ?? {},
+      }),
       { revalidate: false },
     );
 
@@ -83,11 +96,13 @@ export function useEntity<
         newItem,
       );
 
-      // Замена временного элемента на реальный
       await mutate(
-        endpoint,
-        (current: R[] = []) =>
-          current.map((item) => (item.id === 'temp-id' ? savedItem : item)),
+        (current) => ({
+          items: (current?.items ?? []).map((item) =>
+            item.id === 'temp-id' ? savedItem : item,
+          ),
+          meta: current?.meta ?? {},
+        }),
         { revalidate: false },
       );
 
@@ -96,11 +111,10 @@ export function useEntity<
     } catch (e) {
       const error = e as Error;
       options?.onError?.(error);
-      await mutate(endpoint);
+      await mutate();
       throw error;
     }
   };
-
   // --- UPDATE ---
   const { trigger: updateTrigger, ...updateMutation } = useSWRMutation<
     R,
@@ -110,7 +124,7 @@ export function useEntity<
   >(
     endpoint,
     (_, { arg: { id, data } }) =>
-      fetcher<R, U>({ url: `${endpoint}/${id}`, method: 'PUT', data }),
+      fetcher<R, U>({ url: `${endpoint}/${id}`, method: 'PATCH', data }),
     {
       ...mutationConfig,
       onSuccess: () => revalidateExtraKeys(),
@@ -128,13 +142,16 @@ export function useEntity<
     updates: U,
     options?: MutationCallbacks<R>,
   ) => {
-    // Оптимистичное обновление
     await mutate(
-      endpoint,
-      (current: R[] = []) =>
-        current.map((item) =>
-          item.id === id ? { ...item, ...updates } : item,
-        ),
+      (current) => {
+        if (!current) return { items: [], meta: {} };
+        return {
+          ...current,
+          items: current.items.map((item) =>
+            item.id === id ? { ...item, ...updates } : item,
+          ),
+        };
+      },
       { revalidate: false },
     );
 
@@ -145,7 +162,7 @@ export function useEntity<
     } catch (e) {
       const error = e as Error;
       options?.onError?.(error);
-      await mutate(endpoint);
+      await mutate();
       throw error;
     }
   };
@@ -172,10 +189,14 @@ export function useEntity<
    * @param options - Опциональные колбэки onSuccess и onError.
    */
   const remove = async (id: EntityID, options?: MutationCallbacks<void>) => {
-    // Оптимистичное обновление
     await mutate(
-      endpoint,
-      (current: R[] = []) => current.filter((item) => item.id !== id),
+      (current) => {
+        if (!current) return { items: [], meta: {} };
+        return {
+          ...current,
+          items: current.items.filter((item) => item.id !== id),
+        };
+      },
       { revalidate: false },
     );
 
@@ -185,13 +206,13 @@ export function useEntity<
     } catch (e) {
       const error = e as Error;
       options?.onError?.(error);
-      await mutate(endpoint);
+      await mutate();
       throw error;
     }
   };
 
   return {
-    data: items,
+    data: transformedData,
     error,
     isLoading,
     create: { trigger: create, ...createMutation },
