@@ -32,6 +32,9 @@ export class HersController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateHerDto: UpdateHerDto) {
+    console.log(id);
+    console.log(updateHerDto);
+
     return this.hersService.update(id, updateHerDto);
   }
 
