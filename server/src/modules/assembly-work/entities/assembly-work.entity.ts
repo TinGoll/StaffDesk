@@ -1,0 +1,13 @@
+export class AssemblyWork {}
+
+/**
+ * CREATE TABLE WORK_PRICES (
+    ID         INTEGER NOT NULL,
+    ID_SECTOR  INTEGER,
+    NAME       VARCHAR(32),
+    PRICE      DECIMAL(8,2),
+    ACTIVELY   SMALLINT,
+    NUM_SORT   SMALLINT,
+    OPTIONAL   SMALLINT DEFAULT 0
+);
+ */
