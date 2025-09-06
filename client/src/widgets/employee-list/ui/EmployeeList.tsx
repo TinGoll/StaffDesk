@@ -1,15 +1,15 @@
-import { css } from "@emotion/css";
-import { Skeleton, Typography } from "antd";
+import { css } from '@emotion/css';
+import { Skeleton, Typography } from 'antd';
 import {
   memo,
   useMemo,
   type ComponentPropsWithoutRef,
   type FC,
   type ReactNode,
-} from "react";
-import { Virtuoso } from "react-virtuoso";
+} from 'react';
+import { Virtuoso } from 'react-virtuoso';
 
-import { EmployeeCard, useEmployees } from "@entities/employee";
+import { EmployeeCard, useEmployees } from '@entities/employee';
 
 const styles = css`
   position: relative;
@@ -54,7 +54,7 @@ const ItemContainer = ({
   children,
   style,
   ...rest
-}: { children?: ReactNode } & ComponentPropsWithoutRef<"div"> & {
+}: { children?: ReactNode } & ComponentPropsWithoutRef<'div'> & {
     ref?: React.RefObject<HTMLDivElement | null>;
   }) => (
   <div ref={ref} style={{ ...style, marginBottom: 8 }} {...rest}>
