@@ -1,18 +1,18 @@
 export class Employee {
   id: number;
-  mgtPass?: string;
   name: string;
-  sectorId: number;
   department: string;
+  sectorId: number;
   status: number;
-  location: string;
+  location?: string;
   firstName?: string;
   lastName?: string;
   middleName?: string;
   bankCard?: string;
   cardHolder?: string;
-  phone: string;
-  permissionGroupId: number;
+  phone?: string;
+  permissionGroupId?: number;
+  mgtPass?: string;
 }
 
 /**

@@ -1,4 +1,5 @@
-export class CreateEmployeeDto {
+export interface Employee {
+  id: number;
   name: string;
   department: string;
   sectorId: number;

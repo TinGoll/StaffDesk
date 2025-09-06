@@ -3,6 +3,8 @@ import useSWR, { type SWRConfiguration } from 'swr';
 import type { SWRMutationConfiguration } from 'swr/mutation';
 import useSWRMutation from 'swr/mutation';
 
+import type { Endpoints } from '@shared/contracts/endpoints';
+
 import { fetcher } from './fetcher.swr';
 
 export type EntityID = string | number;
@@ -25,7 +27,7 @@ export interface UseEntityOptions<
   R extends BaseEntity,
   TTransformedData = PaginatedResponse<R>,
 > {
-  endpoint: string;
+  endpoint: Endpoints;
   swrConfig?: SWRConfiguration<PaginatedResponse<R>>;
   transform: (data: PaginatedResponse<R>) => TTransformedData;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
