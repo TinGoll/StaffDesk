@@ -1,4 +1,5 @@
-export class CreateAssemblyWorkDto {
+export interface AssemblyWork {
+  id: number;
   sectorID: number;
   name: string;
   price: number;

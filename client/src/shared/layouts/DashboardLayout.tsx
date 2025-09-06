@@ -10,6 +10,7 @@ const styles = css`
   & .app-header {
     position: sticky;
     top: 0;
+    height: var(--app-header-height);
   }
 
   & .app-main {
