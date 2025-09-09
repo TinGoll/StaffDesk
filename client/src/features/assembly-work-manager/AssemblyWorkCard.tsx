@@ -86,7 +86,11 @@ export const AssemblyWorkCard: FC = () => {
           {works?.map((work) => {
             const updateLoading = updatableID === work.id && isMutating;
             return (
-              <CardFieldRow className='assembly-work-row' key={work.id} label={work.name}>
+              <CardFieldRow
+                className="assembly-work-row"
+                key={work.id}
+                label={work.name}
+              >
                 <Editable
                   loading={updateLoading}
                   className={editableStyles}
