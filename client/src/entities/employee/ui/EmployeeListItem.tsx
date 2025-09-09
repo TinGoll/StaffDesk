@@ -23,6 +23,10 @@ const styles = css`
   border-radius: 6px;
   gap: 16px;
 
+  &.selected {
+    background-color: #1669dc30;
+  }
+
   & .employee-avatar {
     background: #1668dc;
   }
@@ -94,12 +98,18 @@ const statusMap: Record<EmployeeStatys, { color: BaseType; text: string }> = {
 };
 
 type Props = {
-  employee?: Employee;
-  onEdit?: (employee?: Employee) => void;
+  employee: Employee;
+  selected?: boolean;
+  onEdit?: (employee: Employee) => void;
   onDelete?: (id?: number) => void;
 };
 
-export const EmployeeCard: FC<Props> = ({ employee, onEdit, onDelete }) => {
+export const EmployeeListItem: FC<Props> = ({
+  employee,
+  selected,
+  onEdit,
+  onDelete,
+}) => {
   const { copyToClipboard } = useCopyToClipboard();
 
   const status =
@@ -114,7 +124,7 @@ export const EmployeeCard: FC<Props> = ({ employee, onEdit, onDelete }) => {
   }, [employee?.id, onDelete]);
 
   return (
-    <div className={styles}>
+    <div className={`${styles}${selected ? ' selected' : ''}`}>
       <Avatar
         size="large"
         className="employee-avatar"
