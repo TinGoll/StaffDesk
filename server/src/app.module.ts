@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { EmployeesModule } from './modules/employees/employees.module';
 import { AssemblyWorkModule } from './modules/assembly-work/assembly-work.module';
 import { SectorsModule } from './modules/sectors/sectors.module';
+import { FirebirdModule } from './modules/firebird/firebird.module';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { SectorsModule } from './modules/sectors/sectors.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    FirebirdModule,
     EmployeesModule,
     AssemblyWorkModule,
     SectorsModule,
