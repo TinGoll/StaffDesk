@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { AssemblyWork } from '../entities/assembly-work.entity';
 import { AssemblyWorksRepository } from './assembly-work.repository';
 import { CreateAssemblyWorkDto } from '../dto/create-assembly-work.dto';
@@ -68,6 +72,9 @@ export class InMemoryAssemblyWorkRepository implements AssemblyWorksRepository {
   }
 
   async update(id: number, updateUserDto: UpdateAssemblyWorkDto) {
+    if (updateUserDto?.price !== undefined && updateUserDto?.price < 0) {
+      throw new BadRequestException(`Цена не должна быть отрицательной.`);
+    }
     const item = await this.findById(id);
 
     const itemIndex = this.works.findIndex((u) => u.id === id);
