@@ -1,85 +1,134 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { AssemblyWork } from '../entities/assembly-work.entity';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { AssemblyWorksRepository } from './assembly-work.repository';
 import { CreateAssemblyWorkDto } from '../dto/create-assembly-work.dto';
 import { UpdateAssemblyWorkDto } from '../dto/update-assembly-work.dto';
+import { AssemblyWork } from '../entities/assembly-work.entity';
+import { AssemblyWorkDB } from './assembly-work.types';
+import { FirebirdService } from 'src/modules/firebird/firebird.service';
+import { buildInsertQuery, buildUpdateQuery } from 'src/common/helpers';
+
+const workFieldMap: Record<keyof AssemblyWork, keyof AssemblyWorkDB> = {
+  id: 'ID',
+  sectorID: 'ID_SECTOR',
+  name: 'NAME',
+  price: 'PRICE',
+  actively: 'ACTIVELY',
+  sort: 'NUM_SORT',
+  optional: 'OPTIONAL',
+};
+
+const TABLE_NAME = 'WORK_PRICES';
 
 @Injectable()
 export class DatabaseAssemblyWorkRepository implements AssemblyWorksRepository {
-  private works: AssemblyWork[] = [
-    {
-      id: 1,
-      sectorID: 2,
-      name: 'Подбор',
-      price: 65,
-      actively: true,
-      sort: 1,
-      optional: false,
-    },
-    {
-      id: 2,
-      sectorID: 2,
-      name: 'Запил',
-      price: 70,
-      actively: true,
-      sort: 1,
-      optional: false,
-    },
-    {
-      id: 3,
-      sectorID: 2,
-      name: 'Мастер Джон',
-      price: 75,
-      actively: true,
-      sort: 1,
-      optional: false,
-    },
-    {
-      id: 4,
-      sectorID: 2,
-      name: 'Вайма',
-      price: 70,
-      actively: true,
-      sort: 1,
-      optional: false,
-    },
-  ];
+  constructor(private readonly firebird: FirebirdService) {}
 
   async findAll(): Promise<AssemblyWork[]> {
-    return Promise.resolve(this.works);
-  }
-
-  async findById(id: number): Promise<AssemblyWork> {
-    const item = this.works.find((e) => e.id === id);
-    if (!item) {
-      throw new NotFoundException(`Work with ID "${id}" not found`);
+    const query = `SELECT * FROM ${TABLE_NAME}`;
+    try {
+      const db = await this.firebird.attach();
+      const result = await db.executeAndReturning<AssemblyWorkDB[]>(query);
+      return result.map(this.mapRowToWorks);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new BadRequestException(error.message);
+      }
+      throw new InternalServerErrorException('Unexpected database error');
     }
-    return Promise.resolve(item);
   }
+  async findById(id: number): Promise<AssemblyWork | undefined> {
+    const query = `SELECT * FROM ${TABLE_NAME} s WHERE s.ID = ?`;
+    try {
+      const db = await this.firebird.attach();
+      const result = await db.executeAndReturning<AssemblyWorkDB[]>(query, [
+        id,
+      ]);
 
+      return result.length ? this.mapRowToWorks(result[0]) : undefined;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
   async create(dto: CreateAssemblyWorkDto): Promise<AssemblyWork> {
-    const id: number = this.works.length + 1;
-    const item = {
+    const { query, values } = buildInsertQuery<AssemblyWork>(
+      TABLE_NAME,
+      dto,
+      workFieldMap,
+    );
+    try {
+      const db = await this.firebird.attach();
+      const result = await db.executeAndReturning<AssemblyWorkDB>(
+        query,
+        values,
+      );
+      return this.mapRowToWorks(result);
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+  async update(id: number, dto: UpdateAssemblyWorkDto): Promise<AssemblyWork> {
+    const { query, values } = buildUpdateQuery<AssemblyWork>(
+      TABLE_NAME,
       id,
-      ...dto,
-    };
-    this.works.push(item);
-    return Promise.resolve(item);
+      dto,
+      workFieldMap,
+    );
+
+    try {
+      const db = await this.firebird.attach();
+      const result = await db.executeAndReturning<AssemblyWorkDB>(
+        query,
+        values,
+      );
+
+      if (!result) {
+        throw new NotFoundException(`Work with id ${id} not found`);
+      }
+      return this.mapRowToWorks(result);
+    } catch (error) {
+      this.handleError(error);
+    }
   }
-
-  async update(id: number, updateUserDto: UpdateAssemblyWorkDto) {
-    const item = await this.findById(id);
-
-    const itemIndex = this.works.findIndex((u) => u.id === id);
-
-    const updatedUser = { ...item, ...updateUserDto };
-    this.works[itemIndex] = updatedUser;
-
-    return updatedUser;
-  }
-
   async remove(id: number): Promise<void> {
-    const item = await this.findById(id);
-    this.works = this.works.filter((e) => e.id !== item.id);
+    const query = `
+          DELETE FROM ${TABLE_NAME}
+          WHERE ID = ?
+          RETURNING ID;
+        `;
+    try {
+      const db = await this.firebird.attach();
+      const result = await db.executeAndReturning<{ ID: number }[]>(query, [
+        id,
+      ]);
+      if (!result.length) {
+        throw new NotFoundException(`Work with id ${id} not found`);
+      }
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  private mapRowToWorks(this: void, row: AssemblyWorkDB): AssemblyWork {
+    return {
+      id: row.ID,
+      sectorID: row.ID_SECTOR,
+      name: row.NAME,
+      price: row.PRICE,
+      actively: row.ACTIVELY,
+      sort: row.NUM_SORT,
+      optional: row.OPTIONAL,
+    };
+  }
+
+  private handleError(error: unknown): never {
+    if (error instanceof Error) {
+      throw new BadRequestException(error.message);
+    }
+    throw new InternalServerErrorException('Unexpected database error');
   }
 }

@@ -3,6 +3,7 @@ import { Button, Input, Select, type SelectProps } from 'antd';
 import type { FC } from 'react';
 
 import type { Employee } from '@shared/contracts/employees.contract';
+import type { PermissionsGroup } from '@shared/contracts/permissionsGroup.contract';
 import type { Sector } from '@shared/contracts/sector.contract';
 import { CardFieldRow, CardLayout } from '@shared/ui/CardLayout';
 
@@ -17,20 +18,38 @@ const actionsStyled = css`
   gap: 6px;
 `;
 
-export const EmployeeCardCreate: FC<{
+type Props = {
   employee: Partial<Employee>;
   sectors?: Sector[];
   loading?: boolean;
+  permissions?: PermissionsGroup[];
   onChange?: (patch: Partial<Employee>) => void;
   onSave?: () => void;
   onCancel?: () => void;
-}> = ({ employee, sectors, loading, onChange, onCancel, onSave }) => {
+};
+
+export const EmployeeCardCreate: FC<Props> = ({
+  employee,
+  sectors,
+  permissions,
+  loading,
+  onChange,
+  onCancel,
+  onSave,
+}) => {
   const initials = employee?.firstName?.[0] ?? employee?.name?.[0] ?? '?';
 
   const departamentOptions: SelectProps['options'] = sectors?.map((sector) => ({
     label: sector.name,
     value: sector.id,
   }));
+
+  const permissionsOptions: SelectProps['options'] = permissions?.map(
+    (permission) => ({
+      label: permission.name,
+      value: permission.id,
+    }),
+  );
 
   return (
     <CardLayout
@@ -80,6 +99,22 @@ export const EmployeeCardCreate: FC<{
               value={employee.middleName}
               placeholder="Укажи отчество"
               onChange={(e) => onChange?.({ middleName: e.target.value })}
+            />
+          </CardFieldRow>
+          <CardFieldRow label="Набор прав">
+            <Select
+              variant="filled"
+              value={employee.permissionGroupId || undefined}
+              placeholder="Выбери набор прав"
+              className={imputStyles}
+              options={permissionsOptions}
+              onChange={(_, option) => {
+                if (!Array.isArray(option)) {
+                  onChange?.({
+                    permissionGroupId: Number(option?.value),
+                  });
+                }
+              }}
             />
           </CardFieldRow>
           <div className={actionsStyled}>

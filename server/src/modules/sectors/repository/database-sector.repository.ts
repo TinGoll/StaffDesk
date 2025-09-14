@@ -1,53 +1,118 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { SectorRepository } from './sector.repository';
 import { Sector } from '../entities/sector.entity';
 import { CreateSectorDto } from '../dto/create-sector.dto';
 import { UpdateSectorDto } from '../dto/update-sector.dto';
+import { FirebirdService } from 'src/modules/firebird/firebird.service';
+import { SectorDB } from './sector.types';
+import { buildInsertQuery, buildUpdateQuery } from 'src/common/helpers';
+
+const sectorFieldMap: Record<keyof Sector, string> = {
+  id: 'ID',
+  name: 'NAME',
+  orderBy: 'ORDER_BY',
+};
 
 @Injectable()
 export class DatabaseSectorRepository implements SectorRepository {
-  private items: Sector[] = [
-    { id: 1, name: 'Менеджеры', orderBy: 1 },
-    { id: 2, name: 'Сборка', orderBy: 2 },
-    { id: 3, name: 'Шлифовка', orderBy: 3 },
-    { id: 4, name: 'Лакировка', orderBy: 4 },
-  ];
+  constructor(private readonly firebird: FirebirdService) {}
 
   async findAll(): Promise<Sector[]> {
-    return Promise.resolve(this.items);
-  }
-
-  async findById(id: number): Promise<Sector> {
-    const employee = this.items.find((e) => e.id === id);
-    if (!employee) {
-      throw new NotFoundException(`Sector with ID "${id}" not found`);
+    const query = `SELECT * FROM SECTORS`;
+    try {
+      const db = await this.firebird.attach();
+      const result = await db.executeAndReturning<SectorDB[]>(query);
+      return result.map(this.mapRowToSectors);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new BadRequestException(error.message);
+      }
+      throw new InternalServerErrorException('Unexpected database error');
     }
-    return Promise.resolve(employee);
   }
 
-  async create(dto: CreateSectorDto): Promise<Sector> {
-    const id: number = this.items.length + 1;
-    const employee = {
+  async findById(id: number): Promise<Sector | undefined> {
+    const query = `SELECT * FROM SECTORS s WHERE s.ID = ?`;
+    try {
+      const db = await this.firebird.attach();
+      const result = await db.executeAndReturning<SectorDB[]>(query, [id]);
+      return result.length ? this.mapRowToSectors(result[0]) : undefined;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async create(sector: CreateSectorDto): Promise<Sector> {
+    const { query, values } = buildInsertQuery<Sector>(
+      'SECTORS',
+      sector,
+      sectorFieldMap,
+    );
+
+    try {
+      const db = await this.firebird.attach();
+      const result = await db.executeAndReturning<SectorDB[]>(query, values);
+      return this.mapRowToSectors(result[0]);
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async update(id: number, sector: UpdateSectorDto): Promise<Sector> {
+    const { query, values } = buildUpdateQuery<Sector>(
+      'SECTORS',
       id,
-      ...dto,
-    };
-    this.items.push(employee);
-    return Promise.resolve(employee);
-  }
-
-  async update(id: number, updateUserDto: UpdateSectorDto) {
-    const item = await this.findById(id);
-
-    const itemIndex = this.items.findIndex((u) => u.id === id);
-
-    const updatedUser = { ...item, ...updateUserDto };
-    this.items[itemIndex] = updatedUser;
-
-    return updatedUser;
+      sector,
+      sectorFieldMap,
+    );
+    try {
+      const db = await this.firebird.attach();
+      const result = await db.executeAndReturning<SectorDB[]>(query, values);
+      if (!result.length) {
+        throw new NotFoundException(`Sector with id ${id} not found`);
+      }
+      return this.mapRowToSectors(result[0]);
+    } catch (error) {
+      this.handleError(error);
+    }
   }
 
   async remove(id: number): Promise<void> {
-    const item = await this.findById(id);
-    this.items = this.items.filter((e) => e.id !== item.id);
+    const query = `
+      DELETE FROM SECTORS
+      WHERE ID = ?
+      RETURNING ID;
+    `;
+    try {
+      const db = await this.firebird.attach();
+      const result = await db.executeAndReturning<{ ID: number }[]>(query, [
+        id,
+      ]);
+      if (!result.length) {
+        throw new NotFoundException(`Sector with id ${id} not found`);
+      }
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  private mapRowToSectors(this: void, row: SectorDB): Sector {
+    return {
+      id: row.ID,
+      name: row.NAME,
+      orderBy: row.ORDER_BY,
+    };
+  }
+
+  private handleError(error: unknown): never {
+    if (error instanceof Error) {
+      throw new BadRequestException(error.message);
+    }
+    throw new InternalServerErrorException('Unexpected database error');
   }
 }

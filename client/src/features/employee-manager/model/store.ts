@@ -1,5 +1,6 @@
 import { createStore } from 'zustand';
 
+import { computeFullName } from '@entities/employee';
 import type { Employee } from '@shared/contracts/employees.contract';
 
 import type { EmployeeStore, NewEmployee } from './types';
@@ -21,14 +22,6 @@ export const employeeStore = createStore<EmployeeStore>((set, get) => {
       errors,
       isValid: Object.keys(errors).length === 0,
     };
-  };
-
-  const buildFullName = (
-    firstName?: string,
-    lastName?: string,
-    middleName?: string,
-  ) => {
-    return [lastName, firstName, middleName].filter(Boolean).join(' ').trim();
   };
 
   return {
@@ -67,11 +60,7 @@ export const employeeStore = createStore<EmployeeStore>((set, get) => {
       ) {
         updated = {
           ...updated,
-          name: buildFullName(
-            updated.firstName,
-            updated.lastName,
-            updated.middleName,
-          ),
+          name: computeFullName(updated),
         };
       }
 

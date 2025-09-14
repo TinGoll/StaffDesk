@@ -4,6 +4,7 @@ import { EmployeesModule } from './modules/employees/employees.module';
 import { AssemblyWorkModule } from './modules/assembly-work/assembly-work.module';
 import { SectorsModule } from './modules/sectors/sectors.module';
 import { FirebirdModule } from './modules/firebird/firebird.module';
+import { PermissionsGroupModule } from './modules/permissions-group/permissions-group.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { FirebirdModule } from './modules/firebird/firebird.module';
     EmployeesModule,
     AssemblyWorkModule,
     SectorsModule,
+    PermissionsGroupModule,
   ],
   controllers: [],
   providers: [],

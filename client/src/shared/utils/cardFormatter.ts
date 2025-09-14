@@ -1,4 +1,3 @@
-// cardFormatter.ts
 export type CardType = 'visa' | 'mastercard' | 'amex' | 'discover' | 'unknown';
 
 export interface FormatOptions {
@@ -13,7 +12,7 @@ export interface FormatOptions {
 /** Убирает всё, кроме цифр */
 export const clean = (input: string): string => input.replace(/\D+/g, '');
 
-/** Детект по префиксу. Простая и надежная для основных видов карт */
+/** Детект по префиксу. */
 export const detectCardType = (digits: string): CardType => {
   if (/^3[47]\d{0,}$/.test(digits)) return 'amex';
   if (/^4\d{0,}$/.test(digits)) return 'visa';
@@ -23,7 +22,6 @@ export const detectCardType = (digits: string): CardType => {
   return 'unknown';
 };
 
-/** Luhn — реализован аккуратно, digit-by-digit */
 export const luhnCheck = (digits: string): boolean => {
   const d = clean(digits);
   if (d.length === 0) return false;
@@ -50,7 +48,7 @@ export const getGroupingForType = (type: CardType): number[] => {
     case 'amex':
       return [4, 6, 5];
     default:
-      return [4, 4, 4, 4, 3]; // последняя 3 для буфера (если длиннее)
+      return [4, 4, 4, 4, 3];
   }
 };
 
@@ -179,7 +177,7 @@ export const formatAndMapCursor = (
   return { formatted, cursor: newCursor };
 };
 
-/** Маскирует — удобная обёртка: формат + mask */
+/** Маскирует — формат + mask */
 export const maskCard = (input: string, options?: FormatOptions): string => {
   const separator = options?.separator ?? ' ';
   const maskExceptLast = options?.maskExceptLast ?? 4;

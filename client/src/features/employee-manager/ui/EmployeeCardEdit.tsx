@@ -1,5 +1,5 @@
-import { PhoneOutlined, IdcardOutlined } from '@ant-design/icons';
-import { css } from '@emotion/css';
+import { PhoneOutlined, IdcardOutlined } from "@ant-design/icons";
+import { css } from "@emotion/css";
 import {
   Divider,
   Input,
@@ -7,15 +7,16 @@ import {
   Tag,
   Typography,
   type SelectProps,
-} from 'antd';
-import type { FC } from 'react';
+} from "antd";
+import type { FC } from "react";
 
-import type { Employee } from '@shared/contracts/employees.contract';
-import type { Sector } from '@shared/contracts/sector.contract';
-import { CardFieldRow, CardLayout } from '@shared/ui/CardLayout';
-import { Editable } from '@shared/ui/editable';
-import { FormattedPhoneNumber } from '@shared/ui/phone-number';
-import { clean, formatCardNumber } from '@shared/utils/cardFormatter';
+import type { Employee } from "@shared/contracts/employees.contract";
+import type { PermissionsGroup } from "@shared/contracts/permissionsGroup.contract";
+import type { Sector } from "@shared/contracts/sector.contract";
+import { CardFieldRow, CardLayout } from "@shared/ui/CardLayout";
+import { Editable } from "@shared/ui/editable";
+import { FormattedPhoneNumber } from "@shared/ui/phone-number";
+import { clean, formatCardNumber } from "@shared/utils/cardFormatter";
 
 const dividerStyles = css`
   margin: 8px 0;
@@ -38,37 +39,57 @@ const editableStyles = css`
 
 const { Text } = Typography;
 
-export const EmployeeCardEdit: FC<{
+type Props = {
   employee: Employee;
   sectors?: Sector[];
-  onChange?: (patch: Partial<Employee>) => void;
-}> = ({ employee, sectors, onChange }) => {
-  const initials = employee?.firstName?.[0] ?? employee?.name?.[0] ?? '?';
+  permissions?: PermissionsGroup[];
+  onChange?: (id: number, patch: Partial<Employee>) => void;
+};
 
-  const departamentOptions: SelectProps['options'] = sectors?.map((sector) => ({
+export const EmployeeCardEdit: FC<Props> = ({
+  employee,
+  sectors,
+  permissions,
+  onChange,
+}) => {
+  const initials = employee?.firstName?.[0] ?? employee?.name?.[0] ?? "?";
+
+  const departamentOptions: SelectProps["options"] = sectors?.map((sector) => ({
     label: sector.name,
     value: sector.id,
   }));
 
-  const statusOption: SelectProps['options'] = [
-    { value: -1, label: 'Уволен' },
-    { value: 1, label: 'Работет' },
+  const permissionsOptions: SelectProps["options"] = permissions?.map(
+    (permission) => ({
+      label: permission.name,
+      value: permission.id,
+    })
+  );
+
+  const statusOption: SelectProps["options"] = [
+    { value: -1, label: "Уволен" },
+    { value: 1, label: "Работет" },
   ];
 
+  const permissionName =
+    permissions?.find(
+      (permission) => permission.id === employee.permissionGroupId
+    )?.name ?? "Неизвестно";
+
   const handleChange = (name: string, value?: string | number): void => {
-    if (name === 'sectorId') {
+    if (name === "sectorId") {
       const item = sectors?.find((sector) => sector.id === Number(value));
       if (!item) {
         return;
       }
-      onChange?.({
+      onChange?.(employee.id, {
         sectorId: Number(value),
         department: item.name,
       });
 
       return;
     }
-    onChange?.({
+    onChange?.(employee.id, {
       [name]: value,
     });
   };
@@ -194,10 +215,10 @@ export const EmployeeCardEdit: FC<{
               name="status"
             >
               <Text
-                type={employee.status === 1 ? 'success' : 'warning'}
+                type={employee.status === 1 ? "success" : "warning"}
                 className="editable-value"
               >
-                {employee.status === 1 ? 'Работает' : 'Уволен'}
+                {employee.status === 1 ? "Работает" : "Уволен"}
               </Text>
             </Editable>
           </CardFieldRow>
@@ -293,6 +314,28 @@ export const EmployeeCardEdit: FC<{
                   Нажмите, чтобы заполнить
                 </Text>
               )}
+            </Editable>
+          </CardFieldRow>
+          <CardFieldRow label="Набор прав">
+            <Editable
+              key={`${employee.id}_permissionGroupId`}
+              className={editableStyles}
+              confirmOnBlur
+              defaultValue={employee.permissionGroupId}
+              control={
+                <Select
+                  style={{ minWidth: 166 }}
+                  variant="filled"
+                  size="small"
+                  value={employee.permissionGroupId || undefined}
+                  placeholder="Выбери набор прав"
+                  options={permissionsOptions}
+                />
+              }
+              onSave={handleChange}
+              name="permissionGroupId"
+            >
+              <Text className="editable-value">{permissionName}</Text>
             </Editable>
           </CardFieldRow>
         </>
