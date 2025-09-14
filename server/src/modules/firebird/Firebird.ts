@@ -65,7 +65,7 @@ export class Firebird {
   startTransaction(
     transactionCallback: (err: any, transaction: FirebirdTransaction) => void,
   ) {
-    // eslint-disable-next-line @typescript-eslint/require-await
+    // eslint-disable-next-line @typescript-eslint/require-await, @typescript-eslint/no-misused-promises
     this.db.transaction(ISOLATION_READ_COMMITTED, async (err, transaction) => {
       transactionCallback(err, new FirebirdTransaction(transaction));
     });
