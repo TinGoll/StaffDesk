@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  server:
+    build: ./server
+    container_name: staff-server
+    env_file: ./server/.env
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "3535:3535"
+    volumes:
+      - F:/javascript/massiv-yug/db:/app/db
+    networks:
+      - staffnet
+
+  client:
+    build: ./client
+    container_name: staff-client
+    env_file: ./client/.env
+    ports:
+      - "8080:80"
+    depends_on:
+      - server
+    networks:
+      - staffnet
+
+networks:
+  staffnet:
+    driver: bridge
