@@ -6,7 +6,7 @@ import { PERMISSION_GROUP_REPOSITORY } from './repository/permissions-group.toke
 import { InMemoryPermissionsGroupRepository } from './repository/in-memory-permissions-group.repository';
 import { DatabasePermissionsGroupRepository } from './repository/database-permissions-group.repository';
 
-const isDev = process.env.NODE_ENV === 'production';
+const isDev = process.env.NODE_ENV !== 'production';
 
 @Module({
   controllers: [PermissionsGroupController],
