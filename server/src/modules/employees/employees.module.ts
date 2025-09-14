@@ -6,7 +6,7 @@ import { DatabaseEmployeeRepository } from './repository/database-employees.repo
 import { EMPLOYEE_REPOSITORY } from './repository/employee.tokens';
 import { FirebirdModule } from '../firebird/firebird.module';
 
-const isDev = process.env.NODE_ENV === 'production';
+const isDev = process.env.NODE_ENV !== 'production';
 
 @Module({
   controllers: [EmployeesController],

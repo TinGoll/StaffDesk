@@ -6,7 +6,7 @@ import { InMemorySectorRepository } from './repository/in-memory-sector.reposito
 import { DatabaseSectorRepository } from './repository/database-sector.repository';
 import { FirebirdModule } from '../firebird/firebird.module';
 
-const isDev = process.env.NODE_ENV === 'production';
+const isDev = process.env.NODE_ENV !== 'production';
 
 @Module({
   controllers: [SectorsController],

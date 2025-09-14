@@ -1,5 +1,5 @@
-import { PhoneOutlined, IdcardOutlined } from "@ant-design/icons";
-import { css } from "@emotion/css";
+import { PhoneOutlined, IdcardOutlined } from '@ant-design/icons';
+import { css } from '@emotion/css';
 import {
   Divider,
   Input,
@@ -7,16 +7,16 @@ import {
   Tag,
   Typography,
   type SelectProps,
-} from "antd";
-import type { FC } from "react";
+} from 'antd';
+import type { FC } from 'react';
 
-import type { Employee } from "@shared/contracts/employees.contract";
-import type { PermissionsGroup } from "@shared/contracts/permissionsGroup.contract";
-import type { Sector } from "@shared/contracts/sector.contract";
-import { CardFieldRow, CardLayout } from "@shared/ui/CardLayout";
-import { Editable } from "@shared/ui/editable";
-import { FormattedPhoneNumber } from "@shared/ui/phone-number";
-import { clean, formatCardNumber } from "@shared/utils/cardFormatter";
+import type { Employee } from '@shared/contracts/employees.contract';
+import type { PermissionsGroup } from '@shared/contracts/permissionsGroup.contract';
+import type { Sector } from '@shared/contracts/sector.contract';
+import { CardFieldRow, CardLayout } from '@shared/ui/CardLayout';
+import { Editable } from '@shared/ui/editable';
+import { FormattedPhoneNumber } from '@shared/ui/phone-number';
+import { clean, formatCardNumber } from '@shared/utils/cardFormatter';
 
 const dividerStyles = css`
   margin: 8px 0;
@@ -52,32 +52,32 @@ export const EmployeeCardEdit: FC<Props> = ({
   permissions,
   onChange,
 }) => {
-  const initials = employee?.firstName?.[0] ?? employee?.name?.[0] ?? "?";
+  const initials = employee?.firstName?.[0] ?? employee?.name?.[0] ?? '?';
 
-  const departamentOptions: SelectProps["options"] = sectors?.map((sector) => ({
+  const departamentOptions: SelectProps['options'] = sectors?.map((sector) => ({
     label: sector.name,
     value: sector.id,
   }));
 
-  const permissionsOptions: SelectProps["options"] = permissions?.map(
+  const permissionsOptions: SelectProps['options'] = permissions?.map(
     (permission) => ({
       label: permission.name,
       value: permission.id,
-    })
+    }),
   );
 
-  const statusOption: SelectProps["options"] = [
-    { value: -1, label: "Уволен" },
-    { value: 1, label: "Работет" },
+  const statusOption: SelectProps['options'] = [
+    { value: -1, label: 'Уволен' },
+    { value: 1, label: 'Работет' },
   ];
 
   const permissionName =
     permissions?.find(
-      (permission) => permission.id === employee.permissionGroupId
-    )?.name ?? "Неизвестно";
+      (permission) => permission.id === employee.permissionGroupId,
+    )?.name ?? 'Неизвестно';
 
   const handleChange = (name: string, value?: string | number): void => {
-    if (name === "sectorId") {
+    if (name === 'sectorId') {
       const item = sectors?.find((sector) => sector.id === Number(value));
       if (!item) {
         return;
@@ -215,10 +215,10 @@ export const EmployeeCardEdit: FC<Props> = ({
               name="status"
             >
               <Text
-                type={employee.status === 1 ? "success" : "warning"}
+                type={employee.status === 1 ? 'success' : 'warning'}
                 className="editable-value"
               >
-                {employee.status === 1 ? "Работает" : "Уволен"}
+                {employee.status === 1 ? 'Работает' : 'Уволен'}
               </Text>
             </Editable>
           </CardFieldRow>

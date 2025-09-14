@@ -6,7 +6,7 @@ import { DatabaseAssemblyWorkRepository } from './ropository/database-assembly-w
 import { ASSEMBLY_WORKS_REPOSITORY } from './ropository/assembly-work.tokens';
 import { FirebirdModule } from '../firebird/firebird.module';
 
-const isDev = process.env.NODE_ENV === 'production';
+const isDev = process.env.NODE_ENV !== 'production';
 
 @Module({
   controllers: [AssemblyWorkController],
