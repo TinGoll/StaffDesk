@@ -1,8 +1,9 @@
 import { css } from '@emotion/css';
 import { App, Skeleton } from 'antd';
-import { useEffect, type FC } from 'react';
+import { type FC } from 'react';
 
-import { useEmployees } from '@entities/employee';
+import { computeFullName, useEmployees } from '@entities/employee';
+import { usePermissionsGroup } from '@entities/permissions-group/api/permissionsGroup.api';
 import { useSectors } from '@entities/sector';
 import type { Employee } from '@shared/contracts/employees.contract';
 
@@ -36,11 +37,9 @@ export const EmployeeManager: FC = () => {
   const { data: sectorsData, isLoading: sectorsIsLoading } = useSectors();
   const sectors = sectorsData?.sectors;
 
-  useEffect(() => {
-    if (isEditing && employee && 'id' in employee) {
-      updater(employee.id, { ...employee });
-    }
-  }, [employee, isEditing, updater]);
+  const { data: permissionsGroupData, isLoading: permissionsGroupIsLoading } =
+    usePermissionsGroup();
+  const permissions = permissionsGroupData?.items ?? [];
 
   const handleChange = (patch: Partial<Employee>): void => {
     updateEmployee(patch);
@@ -68,24 +67,36 @@ export const EmployeeManager: FC = () => {
     }
   };
 
-  const handleEdit = (patch: Partial<Employee>) => {
+  const handleEdit = (id: number, patch: Partial<Employee>) => {
+    const fullName = computeFullName({ ...employee, ...patch });
+    const payload = { ...patch, name: fullName };
+
     updateEmployee(patch);
+
+    updater(id, payload).then(() => {
+      notification.success({
+        message: 'Готово! Пользователь обновлен',
+      });
+    });
   };
+
+  const isLoading = permissionsGroupIsLoading || sectorsIsLoading;
 
   if (!employee) {
     return (
-      <Skeleton active loading={sectorsIsLoading}>
+      <Skeleton active loading={isLoading}>
         <CurrentEmployeeEmpty />
       </Skeleton>
     );
   }
   return (
-    <Skeleton active loading={sectorsIsLoading}>
+    <Skeleton active loading={isLoading}>
       <div className={styles}>
         {isEditing ? (
           <EmployeeCardEdit
             sectors={sectors}
             employee={employee as Employee}
+            permissions={permissions}
             onChange={handleEdit}
           />
         ) : (
@@ -93,6 +104,7 @@ export const EmployeeManager: FC = () => {
             loading={createIsMutate}
             sectors={sectors}
             employee={employee}
+            permissions={permissions}
             onChange={handleChange}
             onCancel={handleCancel}
             onSave={handleSave}

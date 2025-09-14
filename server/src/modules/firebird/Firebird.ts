@@ -20,17 +20,14 @@ export class Firebird {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   constructor(db: Database = null) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.db = db;
   }
 
   create(options: Options): Promise<Firebird> {
     return new Promise((resolve, reject) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       NodeFirebird.attachOrCreate(options, (err: Error, db: Database) => {
         if (err) reject(err);
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         this.db = db;
         resolve(this);
       });
@@ -39,7 +36,6 @@ export class Firebird {
 
   executeRequest<T>(query: string, params: any[] = []): Promise<T[]> {
     return new Promise((resolve, reject) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       this.db.query(query, params, (err: Error, results: T[]) => {
         if (err) reject(err);
         resolve(results);
@@ -49,7 +45,6 @@ export class Firebird {
 
   executeAndReturning<T>(query: string, params: any[] = []): Promise<T> {
     return new Promise((resolve, reject) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       this.db.query(query, params, (err: Error, row: any) => {
         if (err) reject(err);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -60,7 +55,6 @@ export class Firebird {
   }
   execute(query: string, params: any[] = []): Promise<void> {
     return new Promise((resolve, reject) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       this.db.query(query, params, (err: Error) => {
         if (err) reject(err);
         resolve();
@@ -71,14 +65,13 @@ export class Firebird {
   startTransaction(
     transactionCallback: (err: any, transaction: FirebirdTransaction) => void,
   ) {
-    // eslint-disable-next-line @typescript-eslint/require-await, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line @typescript-eslint/require-await
     this.db.transaction(ISOLATION_READ_COMMITTED, async (err, transaction) => {
       transactionCallback(err, new FirebirdTransaction(transaction));
     });
   }
 
   detach() {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     this.db.detach();
   }
 
@@ -86,7 +79,6 @@ export class Firebird {
     return new Promise((resolve, reject) => {
       if (!this.db) return resolve();
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       this.db.detach((err) => {
         // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
         if (err) reject(err);

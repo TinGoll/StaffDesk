@@ -4,13 +4,11 @@ export class FirebirdTransaction {
   private db: Transaction;
 
   constructor(db: Transaction) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.db = db;
   }
 
   executeRequest<T>(query: string, params: any[] = []): Promise<T[]> {
     return new Promise((resolve, reject) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       this.db.query(query, params, (err: Error, results: T[]) => {
         if (err) reject(err);
         resolve(results);
@@ -20,7 +18,6 @@ export class FirebirdTransaction {
 
   executeAndReturning<T>(query: string, params: any[] = []): Promise<T> {
     return new Promise((resolve, reject) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       this.db.query(query, params, (err: Error, row: any) => {
         if (err) reject(err);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -31,7 +28,6 @@ export class FirebirdTransaction {
   }
   execute(query: string, params: any[] = []): Promise<void> {
     return new Promise((resolve, reject) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       this.db.query(query, params, (err: Error) => {
         if (err) reject(err);
         resolve();
@@ -41,7 +37,6 @@ export class FirebirdTransaction {
 
   rollback(): Promise<void> {
     return new Promise((resolve, reject) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       this.db.rollback((err) => {
         if (err) {
           // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
@@ -54,7 +49,6 @@ export class FirebirdTransaction {
 
   rollbackRetaining(): Promise<void> {
     return new Promise((resolve, reject) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       this.db.rollbackRetaining((err) => {
         if (err) {
           // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
@@ -67,7 +61,6 @@ export class FirebirdTransaction {
 
   commit(): Promise<void> {
     return new Promise((resolve, reject) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       this.db.commit((err) => {
         if (err) {
           // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
@@ -80,7 +73,6 @@ export class FirebirdTransaction {
 
   commitRetaining(): Promise<void> {
     return new Promise((resolve, reject) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       this.db.commitRetaining((err) => {
         if (err) {
           // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors

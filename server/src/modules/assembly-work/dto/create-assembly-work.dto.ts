@@ -2,7 +2,7 @@ export class CreateAssemblyWorkDto {
   sectorID: number;
   name: string;
   price: number;
-  actively: boolean;
+  actively: number;
   sort: number;
-  optional: boolean;
+  optional: number;
 }
